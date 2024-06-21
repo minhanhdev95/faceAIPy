@@ -102,35 +102,35 @@ for (i, rect) in enumerate(rects):
     cv2.waitKey(0)
 
 
-# print('Loading CLIP Model...')
-# model = SentenceTransformer('clip-ViT-B-32')
-#
-# # Next we compute the embeddings
-# # To encode an image, you can use the following code:
-# # from PIL import Image
-# # encoded_image = model.encode(Image.open(filepath))
-# base_image_names = list(glob.glob('./images_eye_1/*.PNG'))
-# # base_image_names = list(glob.glob('./images_eye_2/*.jpg'))
-# # base_image_names = list(glob.glob('./images_eye_3/*.jpg'))
-# base_encoded_images = np.array([model.encode(Image.open(x)) for x in base_image_names])
-#
-# images_eye = list(glob.glob('./images/eye_indoor_001.png'))
-#
-# for eye in images_eye:
-#     eye_image = cv2.imread(eye)
-#     current_encoded_image = model.encode(Image.open(eye))
-#     ranks = model.similarity(current_encoded_image, base_encoded_images)
-#
-#     i = 0
-#     maxNumber = 0
-#     maxIndex = 0
-#     print(ranks[0])
-#     for score in ranks[0]:
-#         if maxNumber < score:
-#             maxIndex = i
-#             maxNumber = score
-#         i += 1
-#
-#     print(base_image_names[maxIndex])
-#     print("Score: {:.3f}%".format(maxNumber * 100))
+print('Loading CLIP Model...')
+model = SentenceTransformer('clip-ViT-B-32')
+
+# Next we compute the embeddings
+# To encode an image, you can use the following code:
+# from PIL import Image
+# encoded_image = model.encode(Image.open(filepath))
+base_image_names = list(glob.glob('./images_eye_1/*.PNG'))
+# base_image_names = list(glob.glob('./images_eye_2/*.jpg'))
+# base_image_names = list(glob.glob('./images_eye_3/*.jpg'))
+base_encoded_images = np.array([model.encode(Image.open(x)) for x in base_image_names])
+
+images_eye = list(glob.glob('./images/eye_indoor_001.png'))
+
+for eye in images_eye:
+    eye_image = cv2.imread(eye)
+    current_encoded_image = model.encode(Image.open(eye))
+    ranks = model.similarity(current_encoded_image, base_encoded_images)
+
+    i = 0
+    maxNumber = 0
+    maxIndex = 0
+    print(ranks[0])
+    for score in ranks[0]:
+        if maxNumber < score:
+            maxIndex = i
+            maxNumber = score
+        i += 1
+
+    print(base_image_names[maxIndex])
+    print("Score: {:.3f}%".format(maxNumber * 100))
 
