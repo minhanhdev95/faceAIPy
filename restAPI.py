@@ -42,13 +42,29 @@ class ResponseData:
 def is_face_straight(shape):
     left_eye = shape[36]
     right_eye = shape[45]
+    nose_tip = shape[30]  # điểm đầu mũi
+    chin = shape[8]  # điểm cằm
 
     dx = right_eye[0] - left_eye[0]
     dy = right_eye[1] - left_eye[1]
 
     angle = np.degrees(np.arctan2(dy, dx))
-    print(angle)
-    return -5 <= angle <= 5
+
+    if not (-5 <= angle <= 5):
+        return False
+
+    # Kiểm tra xem mũi có nằm giữa khuôn mặt không
+    face_center_x = (left_eye[0] + right_eye[0]) / 2
+    nose_to_center_x = abs(nose_tip[0] - face_center_x)
+    chin_to_center_x = abs(chin[0] - face_center_x)
+
+    # Ngưỡng cho phép độ lệch của mũi và cằm so với trung tâm
+    threshold = 10
+    print('angle: ', angle, ' dx: ', dx, ' dy: ', dy, ' left_eye: ', left_eye, ' right_eye: ', right_eye, ' nose_tip: ',
+          nose_tip, ' chin: ', chin, ' nose_to_center_x: ', nose_to_center_x, ' chin_to_center_x: ', chin_to_center_x)
+    if nose_to_center_x > threshold or chin_to_center_x > threshold:
+        return False
+    return True
 
 
 def compareImg(roi_gray, position):
@@ -103,16 +119,18 @@ def cutImgLips(shape, image):
     lip_points = shape[48:68]
     # Tính toán tọa độ góc trên của hình chữ nhật
     # Tìm tọa độ góc trên bên trái và góc dưới bên phải của hình chữ nhật bao quanh môi
-    x_min = np.min(lip_points[:, 0]) - 7
-    y_min = np.min(lip_points[:, 1]) - 7
-    x_max = np.max(lip_points[:, 0]) + 7
-    y_max = np.max(lip_points[:, 1]) + 7
+    upsizeLips = 7
+
+    x_min = np.min(lip_points[:, 0]) - upsizeLips
+    y_min = np.min(lip_points[:, 1]) - upsizeLips
+    x_max = np.max(lip_points[:, 0]) + upsizeLips
+    y_max = np.max(lip_points[:, 1]) + upsizeLips
 
     # Độ dài và chiều rộng của hình chữ nhật
     width = x_max - x_min
     height = y_max - y_min
 
-    # Vẽ hình chữ nhật bao quanh mắt
+    # Vẽ hình chữ nhật bao quanh mo
     cv2.rectangle(image, (x_min, y_min), (x_min + width, y_min + height), (0, 255, 0), 2)
     roi = image[y_min:y_min + height, x_min:x_min + width]
     roi_gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
@@ -177,7 +195,7 @@ def faceAI(image_stream):
     result.append(compareImg(roiLips, 'lips'))
 
     return ResponseData(
-        filepath=save_file(image_stream, "img"),
+        filepath=save_file(image_stream, "img.png"),
         result=result
     )
 
